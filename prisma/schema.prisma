@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+    userId String @id @unique @db.VarChar(36)
+    phoneNumber String @unique
+    name String @db.VarChar(10)
+    password String @db.VarChar(64)
+    salt String @db.VarChar(64)
+    isFamily Boolean
+    familyId String? @db.VarChar(36)
+    birth DateTime
+    books Book[]
+    prompts Prompt[]
+    families Family[]
+}
+
+model Book {
+    bookId String @id @unique @db.VarChar(36)
+    title String @db.VarChar(30)
+    content String
+    picture String
+    user User @relation(fields: [userId], references: [userId])
+    userId String @db.VarChar(36)
+    prompts Prompt[]
+}
+
+model Prompt {
+    user User @relation(fields: [userId], references: [userId])
+    userId String @db.VarChar(36)
+    book Book @relation(fields: [bookId], references: [bookId])
+    bookId String @db.VarChar(36)
+    content String
+    createdAt DateTime @default(now())
+
+    @@id([userId, bookId])
+}
+
+model Family {
+    user User @relation(fields: [userId], references: [userId])
+    userId String @db.VarChar(36)
+    familyId String @db.VarChar(36)
+
+    @@id([userId, familyId])
+}
