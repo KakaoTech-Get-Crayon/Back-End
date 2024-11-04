@@ -63,6 +63,31 @@ router.post('/signup', async (req: Request, res: Response) => {
         }
 
 
+    } else {
+        res.status(400).send('phoneNumber is already existed')
+    }
+})
+
+router.post('/login', async (req: Request, res: Response) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            phoneNumber: req.body.phoneNumber
+        }
+    })
+
+    if(user){
+        const salt = user.salt
+        const storedHash = user.password
+        const inputHash = await createHashPasswd(req.body.password, salt)
+
+        if(storedHash===inputHash){
+            const token = jwt.sign({ phoneNumber: user.phoneNumber}, 'secret', { expiresIn: '1h'})
+            res.status(200).send({ jwt: token })
+        } else {
+            res.status(401).send("Wrong password")
+        }
+    } else {
+        res.status(401).send("No user information")
     }
 })
 
