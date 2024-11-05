@@ -4,7 +4,7 @@ import { logger } from '@/utils/logger'
 
 const errorMiddleware = (error: APIError, req: Request, res: Response, next: NextFunction) => {
     try {
-        if(!(error instanceof APIError)) {
+        if (!(error instanceof APIError)) {
             error = new InternalServerError(error)
         }
         res.meta.error = error
