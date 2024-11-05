@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import { prisma } from '@/prisma'
 import { v4 as uuid } from 'uuid'
+import {verifyUser} from "@/middlewares/user";
 
 const router:Router = express.Router()
 
@@ -91,4 +92,35 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 })
 
+router.get('/mypage', verifyUser, async(req: Request, res: Response) => {
+    const familyIdList = await prisma.family.findMany({
+        where: {
+            userId: req.user.userId
+        },
+        select: {
+            familyId: true,
+        }
+    }).then(families => families.map(f=>f.familyId))
+
+    const familyList = await prisma.user.findMany({
+        where: {
+            userId: {
+                in: familyIdList
+            }
+        },
+        select: {
+            phoneNumber: true,
+            name: true,
+        }
+    })
+
+    res.status(200).json({
+        userId: req.user.userId,
+        phoneNumber: req.user.phoneNumber,
+        name: req.user.name,
+        isFamily: req.user.isFamily,
+        familyList: familyList,
+        birth: req.user.birth
+    })
+})
 export default router
