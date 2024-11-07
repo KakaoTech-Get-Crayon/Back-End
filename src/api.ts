@@ -32,6 +32,7 @@ export default class API {
 
     setController() {
         this.app.use('/user', controllers.user)
+        this.app.use('/book', controllers.book)
     }
 
     setPostMiddleware() {

@@ -34,6 +34,7 @@ model Book {
     picture String
     user User @relation(fields: [userId], references: [userId])
     userId String @db.VarChar(36)
+    createdAt DateTime @default(now())
     prompts Prompt[]
 }
 
